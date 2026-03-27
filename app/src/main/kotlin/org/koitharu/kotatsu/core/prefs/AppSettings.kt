@@ -104,6 +104,13 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 	val isDescriptionExpanded: Boolean
 		get() = !prefs.getBoolean(KEY_COLLAPSE_DESCRIPTION, true)
 
+	val isBackdropEnabled: Boolean
+		get() = prefs.getBoolean(KEY_DETAILS_BACKDROP, true)
+
+	var backdropBlurAmount: Int
+		get() = prefs.getInt(KEY_DETAILS_BACKDROP_BLUR_AMOUNT, 60)
+		set(value) = prefs.edit { putInt(KEY_DETAILS_BACKDROP_BLUR_AMOUNT, value.coerceIn(0, 100)) }
+
 	var historyListMode: ListMode
 		get() = prefs.getEnumValue(KEY_LIST_MODE_HISTORY, listMode)
 		set(value) = prefs.edit { putEnumValue(KEY_LIST_MODE_HISTORY, value) }
@@ -237,6 +244,10 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 	val progressIndicatorMode: ProgressIndicatorMode
 		get() = prefs.getEnumValue(KEY_PROGRESS_INDICATORS, ProgressIndicatorMode.PERCENT_READ)
 
+	var detailsUiMode: DetailsUiMode
+		get() = prefs.getEnumValue(KEY_DETAILS_UI, MODERN)
+		set(value) = prefs.edit { putEnumValue(KEY_DETAILS_UI, value) }
+
 	var incognitoModeForNsfw: TriStateOption
 		get() = prefs.getEnumValue(KEY_INCOGNITO_NSFW, TriStateOption.ASK)
 		set(value) = prefs.edit { putEnumValue(KEY_INCOGNITO_NSFW, value) }
@@ -298,15 +309,6 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 	val isPagesTabEnabled: Boolean
 		get() = prefs.getBoolean(KEY_PAGES_TAB, true)
 
-	val isPanoramaCoverEnabled: Boolean
-		get() = prefs.getBoolean(KEY_PANORAMA_ENABLED, true)
-
-	val panoramaCoverBlur: Int
-		get() = prefs.getInt(KEY_PANORAMA_BLUR, 0)
-
-	val panoramaCoverExtraHeight: Int
-		get() = prefs.getInt(KEY_PANORAMA_EXTRA_HEIGHT, 40)
-
 	val defaultDetailsTab: Int
 		get() = if (isPagesTabEnabled) {
 			val raw = prefs.getString(KEY_DETAILS_TAB, null)?.toIntOrNull() ?: -1
@@ -348,14 +350,6 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 	var isAllSourcesEnabled: Boolean
 		get() = prefs.getBoolean(KEY_SOURCES_ENABLED_ALL, false)
 		set(value) = prefs.edit { putBoolean(KEY_SOURCES_ENABLED_ALL, value) }
-
-	var preferredSourceLanguages: Set<String>
-		get() = prefs.getStringSet(KEY_SOURCES_PREFERRED_LANGUAGES, emptySet()).orEmpty()
-		set(value) = prefs.edit { putStringSet(KEY_SOURCES_PREFERRED_LANGUAGES, value) }
-
-	var mihonPreferredLanguages: Set<String>
-		get() = prefs.getStringSet(KEY_MIHON_PREFERRED_LANGUAGES, emptySet()).orEmpty()
-		set(value) = prefs.edit { putStringSet(KEY_MIHON_PREFERRED_LANGUAGES, value) }
 
 	var isBrokenSourcesHidden: Boolean
 		get() = prefs.getBoolean(KEY_SOURCES_HIDE_BROKEN, false)
@@ -633,7 +627,7 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 
 	fun getPagesSaveDir(context: Context): DocumentFile? =
 		prefs.getString(KEY_PAGES_SAVE_DIR, null)?.toUriOrNull()?.let {
-			DocumentFile.fromTreeUri(context, it)?.takeIf { it.canWrite() }
+			DocumentFile.fromTreeUri(context, it)?.takeIf { t -> t.canWrite() }
 		}
 
 	fun setPagesSaveDir(uri: Uri?) {
@@ -677,6 +671,20 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		} else {
 			false
 		}
+	}
+
+	private fun migrateBackdropBlur() {
+		val oldKey = "details_backdrop_blur"
+		if (!prefs.contains(oldKey)) return
+		prefs.edit {
+			if (!prefs.contains(KEY_DETAILS_BACKDROP_BLUR_AMOUNT))
+				putInt(KEY_DETAILS_BACKDROP_BLUR_AMOUNT, if (prefs.getBoolean(oldKey, true)) 60 else 0)
+			remove(oldKey)
+		}
+	}
+
+	init {
+		migrateBackdropBlur()
 	}
 
 	companion object {
@@ -749,6 +757,7 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		const val KEY_HISTORY_GROUPING = "history_grouping"
 		const val KEY_UPDATED_GROUPING = "updated_grouping"
 		const val KEY_PROGRESS_INDICATORS = "progress_indicators"
+		const val KEY_DETAILS_UI = "details_ui"
 		const val KEY_REVERSE_CHAPTERS = "reverse_chapters"
 		const val KEY_GRID_VIEW_CHAPTERS = "grid_view_chapters"
 		const val KEY_INCOGNITO_NSFW = "incognito_nsfw"
@@ -815,8 +824,6 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		const val KEY_MAIN_FAB = "main_fab"
 		const val KEY_32BIT_COLOR = "enhanced_colors"
 		const val KEY_SOURCES_ORDER = "sources_sort_order"
-		const val KEY_SOURCES_PREFERRED_LANGUAGES = "sources_preferred_languages"
-		const val KEY_MIHON_PREFERRED_LANGUAGES = "mihon_preferred_languages"
 		const val KEY_SOURCES_CATALOG = "sources_catalog"
 		const val KEY_CF_BRIGHTNESS = "cf_brightness"
 		const val KEY_CF_CONTRAST = "cf_contrast"
@@ -837,9 +844,8 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		const val KEY_SOURCES_HIDE_BROKEN = "sources_hide_broken"
 		const val KEY_QUICK_FILTER = "quick_filter"
 		const val KEY_COLLAPSE_DESCRIPTION = "description_collapse"
-		const val KEY_PANORAMA_ENABLED = "panorama_enabled"
-		const val KEY_PANORAMA_BLUR = "panorama_blur"
-		const val KEY_PANORAMA_EXTRA_HEIGHT = "panorama_extra_height"
+		const val KEY_DETAILS_BACKDROP = "details_backdrop"
+		const val KEY_DETAILS_BACKDROP_BLUR_AMOUNT = "details_backdrop_blur_amount"
 		const val KEY_BACKUP_TG_ENABLED = "backup_periodic_tg_enabled"
 		const val KEY_BACKUP_TG_CHAT = "backup_periodic_tg_chat_id"
 		const val KEY_MANGA_LIST_BADGES = "manga_list_badges"
