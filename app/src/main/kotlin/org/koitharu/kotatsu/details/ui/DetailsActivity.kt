@@ -161,11 +161,10 @@ class DetailsActivity :
 			context = this,
 			imageLoader = coil,
 			lifecycle = this,
-			settings = settings,
 		)
 		viewBinding.scrollView.setOnScrollChangeListener { _, _, scrollY, _, _ ->
 			if (settings.isBackdropEnabled) {
-				viewBinding.backdropContainer.translationY = -scrollY.toFloat()
+				backdropController.setTranslationY(-scrollY.toFloat())
 			}
 			updateAppBarScrim(scrollY)
 			val titleView = viewBinding.textViewTitle
@@ -214,8 +213,6 @@ class DetailsActivity :
 				this,
 				DetailsErrorObserver(
 					activity = this,
-					snackbarHost = viewBinding.scrollView,
-					bottomSheet = viewBinding.containerBottomSheet,
 					viewModel = viewModel,
 					resolver = exceptionResolver,
 				),
@@ -453,7 +450,7 @@ class DetailsActivity :
 			textViewSubtitle.textAndVisible = manga.altTitles.joinToString("\n")
 			textViewNsfw16.isVisible = manga.contentRating == ContentRating.SUGGESTIVE
 			textViewNsfw18.isVisible = manga.contentRating == ContentRating.ADULT
-			textViewDescription.setTextSafely(details.description.ifNullOrEmpty { getString(R.string.no_description) })
+			textViewDescription.text = details.description.ifNullOrEmpty { getString(R.string.no_description) }
 		}
 		with(infoBinding) {
 			val translation = details.getLocale()
@@ -551,7 +548,7 @@ class DetailsActivity :
 		if (settings.isBackdropEnabled) {
 			backdropController.load(imageUrl)
 		} else {
-			viewBinding.backdropContainer.isGone = true
+			backdropController.hide()
 			val isTablet = viewBinding.cardChapters != null
 			viewBinding.contentContainer.updateLayoutParams<ViewGroup.MarginLayoutParams> {
 				topMargin = if (isTablet) 0 else statusBarInset

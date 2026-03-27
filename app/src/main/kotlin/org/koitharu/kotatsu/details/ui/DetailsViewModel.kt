@@ -181,6 +181,10 @@ class DetailsViewModel @Inject constructor(
 	val selectedBranchValue: String?
 		get() = selectedBranch.value
 
+	val backdropUrl = manga.map { it?.largeCoverUrl }
+		.withErrorHandling()
+		.stateIn(viewModelScope + Dispatchers.Default, SharingStarted.Eagerly, null)
+
 	init {
 		loadingJob = doLoad(force = false)
 		launchJob(Dispatchers.Default + SkipErrors) {

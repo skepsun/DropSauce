@@ -111,6 +111,22 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		get() = prefs.getInt(KEY_DETAILS_BACKDROP_BLUR_AMOUNT, 60)
 		set(value) = prefs.edit { putInt(KEY_DETAILS_BACKDROP_BLUR_AMOUNT, value.coerceIn(0, 100)) }
 
+	var panoramaBlur: Int
+		get() = prefs.getInt(KEY_PANORAMA_BLUR, 0)
+		set(value) = prefs.edit { putInt(KEY_PANORAMA_BLUR, value.coerceIn(0, 100)) }
+
+	var panoramaExtraHeight: Int
+		get() = prefs.getInt(KEY_PANORAMA_EXTRA_HEIGHT, 0)
+		set(value) = prefs.edit { putInt(KEY_PANORAMA_EXTRA_HEIGHT, value) }
+
+	var mihonPreferredLanguages: Set<String>
+		get() = prefs.getStringSet(KEY_MIHON_PREFERRED_LANGUAGES, null).orEmpty()
+		set(value) = prefs.edit { putStringSet(KEY_MIHON_PREFERRED_LANGUAGES, value) }
+
+	var preferredSourceLanguages: Set<String>
+		get() = prefs.getStringSet(KEY_SOURCES_PREFERRED_LANGUAGES, null).orEmpty()
+		set(value) = prefs.edit { putStringSet(KEY_SOURCES_PREFERRED_LANGUAGES, value) }
+
 	var historyListMode: ListMode
 		get() = prefs.getEnumValue(KEY_LIST_MODE_HISTORY, listMode)
 		set(value) = prefs.edit { putEnumValue(KEY_LIST_MODE_HISTORY, value) }
@@ -243,10 +259,6 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 
 	val progressIndicatorMode: ProgressIndicatorMode
 		get() = prefs.getEnumValue(KEY_PROGRESS_INDICATORS, ProgressIndicatorMode.PERCENT_READ)
-
-	var detailsUiMode: DetailsUiMode
-		get() = prefs.getEnumValue(KEY_DETAILS_UI, MODERN)
-		set(value) = prefs.edit { putEnumValue(KEY_DETAILS_UI, value) }
 
 	var incognitoModeForNsfw: TriStateOption
 		get() = prefs.getEnumValue(KEY_INCOGNITO_NSFW, TriStateOption.ASK)
@@ -757,7 +769,6 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		const val KEY_HISTORY_GROUPING = "history_grouping"
 		const val KEY_UPDATED_GROUPING = "updated_grouping"
 		const val KEY_PROGRESS_INDICATORS = "progress_indicators"
-		const val KEY_DETAILS_UI = "details_ui"
 		const val KEY_REVERSE_CHAPTERS = "reverse_chapters"
 		const val KEY_GRID_VIEW_CHAPTERS = "grid_view_chapters"
 		const val KEY_INCOGNITO_NSFW = "incognito_nsfw"
@@ -853,6 +864,10 @@ class AppSettings @Inject constructor(@ApplicationContext context: Context) {
 		const val KEY_DISCORD_RPC = "discord_rpc"
 		const val KEY_DISCORD_RPC_SKIP_NSFW = "discord_rpc_skip_nsfw"
 		const val KEY_DISCORD_TOKEN = "discord_token"
+		const val KEY_PANORAMA_BLUR = "panorama_blur"
+		const val KEY_PANORAMA_EXTRA_HEIGHT = "panorama_extra_height"
+		const val KEY_MIHON_PREFERRED_LANGUAGES = "mihon_preferred_languages"
+		const val KEY_SOURCES_PREFERRED_LANGUAGES = "sources_preferred_languages"
 
 		// keys for non-persistent preferences
 		const val KEY_APP_VERSION = "app_version"
