@@ -919,4 +919,11 @@
 	<string name="details_appearance">Details screen appearance</string>
 	<string name="details_appearance_summary">Screen style, backdrop image and blur effect</string>
 	<string name="preview">Preview</string>
+    <string name="pref_sources_languages_summary">Configure preferred languages for filtering multi-language Mihon extensions</string>
+    <string name="source_mode_builtin">Built-in</string>
+    <string name="source_mode_mihon">Mihon</string>
+    <string name="source_mode_prompt">Select source mode</string>
+    <string name="filter_sources_all">All</string>
+    <string name="filter_sources_built_in">Built-in sources</string>
+    <string name="filter_sources_mihon">Mihon sources</string>
 </resources>
