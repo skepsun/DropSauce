@@ -24,15 +24,22 @@ import org.koitharu.kotatsu.core.util.ext.observeEvent
 @AndroidEntryPoint
 class AboutSettingsFragment : BasePreferenceFragment(R.string.about) {
 
+	private val appVersionName: String
+		get() = try {
+			requireContext().packageManager.getPackageInfo(requireContext().packageName, 0).versionName ?: BuildConfig.VERSION_NAME
+		} catch (e: Exception) {
+			BuildConfig.VERSION_NAME
+		}
+
 	private val viewModel by viewModels<AboutSettingsViewModel>()
 
 	override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
 		addPreferencesFromResource(R.xml.pref_about)
 		findPreference<Preference>(AppSettings.KEY_APP_VERSION)?.run {
-			title = getString(R.string.app_version, BuildConfig.VERSION_NAME)
+			title = getString(R.string.app_version, appVersionName)
 		}
 		findPreference<SwitchPreferenceCompat>(AppSettings.KEY_UPDATES_UNSTABLE)?.run {
-			isEnabled = VersionId(BuildConfig.VERSION_NAME).isStable
+			isEnabled = VersionId(appVersionName).isStable
 			if (!isEnabled) isChecked = true
 		}
 	}

@@ -33,7 +33,7 @@ class AppUpdateRepository @Inject constructor(
 	private val appValidator: AppValidator,
 	private val settings: AppSettings,
 	@BaseHttpClient private val okHttp: OkHttpClient,
-	@ApplicationContext context: Context,
+	@ApplicationContext private val context: Context,
 ) {
 
 	private val availableUpdate = MutableStateFlow<AppVersion?>(null)
@@ -73,7 +73,12 @@ class AppUpdateRepository @Inject constructor(
 			return@withContext null
 		}
 		runCatchingCancellable {
-			val currentVersion = VersionId(BuildConfig.VERSION_NAME)
+			val versionName = try {
+				context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: BuildConfig.VERSION_NAME
+			} catch (e: Exception) {
+				BuildConfig.VERSION_NAME
+			}
+			val currentVersion = VersionId(versionName)
 			val available = getAvailableVersions().asArrayList()
 			available.sortBy { it.versionId }
 			if (BuildConfig.BUILD_TYPE == "nightly") {
